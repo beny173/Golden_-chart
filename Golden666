@@ -1,0 +1,37 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main  # یا نام شاخه‌ای که می‌خواهید هنگام تغییرات در آن این فرآیند اجرا شود
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # این کار روی سیستم اوبونتو اجرا خواهد شد
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # این مرحله کد شما را از ریپازیتوری چک اوت می‌کند
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'  # تنظیم نسخه JDK مورد نیاز برای پروژه اندروید شما
+
+    - name: Set up Android SDK
+      uses: reactivecircus/android-sdk-installer@v2
+      with:
+        api-level: 30  # سطح API اندروید مورد نیاز
+        components: build-tools;30.0.3  # ابزارهای ساخت اندروید
+
+    - name: Build APK
+      run: ./gradlew assembleRelease  # این دستور برای ساخت نسخه release از پروژه شما است
+
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-release-apk
+        path: app/build/outputs/apk/release/app-release.apk  # مسیر فایل APK ساخته شده
